@@ -16,7 +16,7 @@ def main ():
   wav_transformer = WavTransformer()
   visualizer = Visualizer()
   file_path = os.path.join(file_worker.get_data_set_path(),  'valid', 'long', os.getenv('CURRENT_FILE')+'.wav')
-  waveform = wav_transformer.get_wave_from_file(path=file_path, desired_samples=RATE * 21)
+  waveform = wav_transformer.get_wave_from_file(path=file_path, duration=int(os.getenv('CURRENT_FILE_DURATION_IN_SECONDS')))
   chunks = wav_transformer.to_chunks(waveform, FRAGMENT_LENGTH)
   _, labels = recognizer.get_chank_label_by_model(np.zeros(FRAGMENT_LENGTH))
 

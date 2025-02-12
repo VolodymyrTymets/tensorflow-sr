@@ -1,7 +1,7 @@
 import os
 from os import path
 import pathlib
-from definitions import ROOT_DIR
+from definitions import ROOT_DIR, RATE
 import tensorflow as tf
 
 class WavTransformer:
@@ -13,9 +13,9 @@ class WavTransformer:
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
   
-  def get_wave_from_file(self, path, desired_samples):
+  def get_wave_from_file(self, path, duration):
     file = tf.io.read_file(str(path))
-    wave, sample_rate = tf.audio.decode_wav(file, desired_channels=1, desired_samples=desired_samples)
+    wave, sample_rate = tf.audio.decode_wav(file, desired_channels=1, desired_samples=RATE * duration)
     x = tf.squeeze(wave, axis=-1)
     x = x[tf.newaxis,...]
     waveform = x.numpy()[0]
