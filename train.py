@@ -4,25 +4,25 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras import models
-
-from model import ExportModel, get_spectrogram
 from matplotlib import pyplot as plt
+from dotenv import load_dotenv
+load_dotenv()
+
+from definitions import RATE, EPOCHS
+from src.modules.model import ExportModel, get_spectrogram
+from src.modules.file_worker import file_worker
 
 # Set the seed value for experiment reproducibility.
 seed = 42
 tf.random.set_seed(seed)
 np.random.seed(seed)
 
-DATASET_PATH = 'dataset'
-EPOCHS = 10
-RATE = 8000
-FRAGMENT_LENGTH = int(RATE * 0.1)
-DURATION = round(1 / (RATE / FRAGMENT_LENGTH), 2)
-print('--DURATION-->', DURATION)
+FRAGMENT_DURATION = float(os.getenv('TRAINED_DURATION_IN_SECONDS'))
+FRAGMENT_LENGTH = int(RATE * FRAGMENT_DURATION)
 
 
 # Step 1. Data collection.
-data_dir = pathlib.Path(os.path.join(DATASET_PATH, 'train'))
+data_dir = pathlib.Path(os.path.join(file_worker.get_data_set_path(), 'train'))
 train_ds, val_ds = tf.keras.utils.audio_dataset_from_directory(
     directory=data_dir,
     batch_size=32,
@@ -106,7 +106,7 @@ for example_spectrograms, example_spect_labels in train_spectrogram_ds.take(1):
 
 # Step 4.2 Export model to file sistem.
 export = ExportModel(model=model, label_names=label_names, fragment_length=FRAGMENT_LENGTH)
-model_dir = pathlib.Path(os.path.join(DATASET_PATH, 'model_{}s'.format(DURATION)))
+model_dir = pathlib.Path(os.path.join(file_worker.get_assets_path(), 'models', 'model_{}s'.format(FRAGMENT_DURATION)))
 tf.saved_model.save(export, model_dir)
 print('Model is saved to: {}'.format(model_dir))
 

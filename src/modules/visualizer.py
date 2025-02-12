@@ -47,9 +47,9 @@ class Visualizer:
 
   def build_axvline(self, segments, linecolors, timestamps):
     for i, segment in enumerate(segments):
-      is_current = i > 0 and linecolors[i] == 'red'
-      is_previous = i > 0 and linecolors[i-1] == 'red'
-      is_next = i + 1 < len(segments) and linecolors[i+1] == 'red'
+      is_current = i > 0 and linecolors[i] == 'blue'
+      is_previous = i > 0 and linecolors[i-1] == 'blue'
+      is_next = i + 1 < len(segments) and linecolors[i+1] == 'blue'
       if(is_current and is_next is False):
         self.ax.axvline(x=segment[-1][0], lw=1, ls='dashed', ymax=0.9, label='axvline - % of full height',)
         plt.text(x=segment[-1][0], y=-0.8, s=round(timestamps[i + 1 if i+1<len(segments) else i], 2))

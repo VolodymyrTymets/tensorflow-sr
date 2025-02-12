@@ -2,7 +2,6 @@ import os
 from os import path
 import pathlib
 from definitions import ROOT_DIR
-import tensorflow as tf
 
 class FileWorker:
   def __init__(self, **kwargs):

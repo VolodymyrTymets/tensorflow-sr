@@ -6,19 +6,14 @@ import struct
 import uuid
 import numpy as np
 from os import path
+from dotenv import load_dotenv
+load_dotenv()
+from definitions import RATE, nFFT
+from src.modules.file_worker import file_worker
 
 
-# MIC settings
-nFFT = 512
-# sample rate - count of samples per seconds
-RATE = 8000
-FRAGMENT_LENGTH = int(RATE * 0.3)
-DURATION = round(1 / (RATE / FRAGMENT_LENGTH), 4)
-print('--DURATION-->', DURATION)
-
-
-def get_only_files(path):
-    return [f for f in listdir(path) if isfile(join(path, f)) and f != '.DS_Store']
+FRAGMENT_DURATION = float(os.getenv('TRAINED_DURATION_IN_SECONDS'))
+FRAGMENT_LENGTH = int(RATE * FRAGMENT_DURATION)
 
 class Fragmenter:
     def __init__(self, model, out_folder):
@@ -56,7 +51,6 @@ class Fragmenter:
     def split(self, buffer, source_file, file_name):
         self.file_name = file_name
         chunk = self.buffer_to_chunk(in_data=buffer, chanels_count=source_file.getnchannels())
-        print('--len-->', len(chunk))
         if(chunk is None):
             return
         if(len(self.fragment) <  FRAGMENT_LENGTH):
@@ -79,13 +73,16 @@ class Fragmenter:
             wav_file.writeframes(struct.pack('h', int(sample)))
 
 
-def append_duration(name):
-    return '{}_{}'.format(DURATION, name)
+def get_only_files(path):
+    return [f for f in listdir(path) if isfile(join(path, f)) and f != '.DS_Store']
 
-def split(path):
-    print('Start split to {}ms for {}'.format(DURATION, path))
+def append_duration(name):
+    return '{}_{}'.format(FRAGMENT_DURATION, name)
+
+def split(path, out_path):
+    print('Start split to {}ms for {}'.format(FRAGMENT_DURATION, path))
     mode = None;
-    fragmenter = Fragmenter(mode, path)
+    fragmenter = Fragmenter(mode, out_path)
     files = get_only_files(path)
     
     for file in files:
@@ -100,5 +97,5 @@ def split(path):
                  
 basepath = path.dirname(__file__)
 ASSETSS_FOLDER = 'dataset/train'
-print('Split into Duration: {}'.format(DURATION))
-split(os.path.join(basepath, '..', ASSETSS_FOLDER, 'crowd'))
+print('Split into Duration: {}'.format(FRAGMENT_DURATION))
+split(os.path.join(file_worker.get_data_set_path(), 'train', 'spray'), os.path.join(file_worker.get_data_set_path(), 'train', 'spray', 'split'))
