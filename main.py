@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import time
 from dotenv import load_dotenv
 load_dotenv()
 from src.modules.file_worker import file_worker
@@ -12,6 +13,7 @@ FRAGMENT_DURATION = float(os.getenv('TRAINED_DURATION_IN_SECONDS'))
 FRAGMENT_LENGTH = int(RATE * FRAGMENT_DURATION)
 
 def main ():
+  recognition_time = time.time()
   recognizer = Recognizer()
   wav_transformer = WavTransformer()
   visualizer = Visualizer()
@@ -36,8 +38,10 @@ def main ():
     segment_label, _ = recognizer.get_chank_label_by_model(lin_y)
     segment_labels.append(segment_label)
     # windowed_lin_y= lin_y * np.hamming(len(lin_y))
-    
-  visualizer.show(segments=segments, segment_labels=segment_labels, labels=labels, timestamps=timestamps, max_x=len(waveform))
 
+  print("---recognition  %s seconds ---" % (time.time() - recognition_time))  
+  plot_time = time.time()
+  visualizer.show(segments=segments, segment_labels=segment_labels, labels=labels, timestamps=timestamps, max_x=len(waveform))
+  print("---visualization  %s seconds ---" % (time.time() - plot_time))  
 
 main();  
